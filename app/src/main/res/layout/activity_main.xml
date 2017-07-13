@@ -64,28 +64,32 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:hint="Ip"
-            android:paddingLeft="20dp" />
+            android:paddingLeft="20dp"
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/et2"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:hint="掩码"
-            android:paddingLeft="20dp" />
+            android:paddingLeft="20dp"
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/et3"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:hint="网关"
-            android:paddingLeft="20dp" />
+            android:paddingLeft="20dp"
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/et4"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:hint="DNS"
-            android:paddingLeft="20dp" />
+            android:paddingLeft="20dp"
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/change"

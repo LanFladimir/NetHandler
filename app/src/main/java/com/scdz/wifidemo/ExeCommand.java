@@ -65,7 +65,7 @@ public class ExeCommand {
         Lock readLock = lock.readLock();
         readLock.lock();
         try {
-            Log.i("auto", "getResult");
+            Log.d("auto", "getResult");
             return new String(result);
         } finally {
             readLock.unlock();
