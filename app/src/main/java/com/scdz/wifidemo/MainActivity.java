@@ -6,20 +6,22 @@ import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.scdz.wifidemo.Invokeutil.invokeStaticMethod;
 
 public class MainActivity extends Activity {
     private Context mContext;
@@ -42,12 +44,12 @@ public class MainActivity extends Activity {
         wifi_info = (TextView) findViewById(R.id.wifi_info);
         linux_info = (TextView) findViewById(R.id.linux_info);
 
-        setInfo();
+        getInfo();
 
         wifi_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setInfo();
+                getInfo();
             }
         });
         change.setOnClickListener(new View.OnClickListener() {
@@ -57,26 +59,38 @@ public class MainActivity extends Activity {
             }
         });
 
-        String SDCARD_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath();
-        String AAA_PATH = SDCARD_ROOT + "/wifidog.conf";
-        //读取目标文件（绝对路径）指定内容“#TrustedMACList ”的那一行
-        //String cmd3 = "ifconfig" ;
-        String cmd3 = "ip addr" ;
-        String str3 = new ExeCommand().run(cmd3, 10000).getResult();
-        Log.e("auto", str3);
-        Toast.makeText(MainActivity.this, str3, Toast.LENGTH_SHORT).show();
+
+        //Test For Cmd
+        List<String> cmdList = new ArrayList<>();
+        cmdList.add("ip addr");
+        cmdList.add("ifconfig");
+        cmdList.add("ifconfig eth0");
+        cmdList.add("ip addr show");
+        for (String s : cmdList) {
+            do_exec(s);
+//            do_exec2(s);
+            String resoult = new ExeCommand().run(s, 10000).getResult();
+            Log.e("ExeCommand---" + s + "\n", resoult);
+        }
     }
 
     /**
      * 修改
      */
     private void changeIpInfo() {
-
-
-        setInfo();
+        String ip = et1.getText().toString();
+        String mask = et2.getText().toString();
+        /*new ExeCommand().run("ifconfig eth0 192.168.5.12 netmask 255.255.255.0", 10000);
+        new ExeCommand().run("route add default gw 192.168.0.1 dev eth0", 10000);
+        new ExeCommand().run("ifconfig eth0 192.168.0.173 netmask 255.0.0.0", 10000);
+        */
+        //new ExeCommand().run("ifconfig eth0 192.168.5.13 netmask 255.255.255.0", 10000);
+        do_exec2("ifconfig eth0 " + ip + " netmask " + mask);
+        //do_exec("route add default gw 192.168.0.1 dev eth0");
+        getInfo();
     }
 
-    private void setInfo() {
+    private void getInfo() {
         //Wifi
         WifiManager manager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = manager.getConnectionInfo();
@@ -95,7 +109,7 @@ public class MainActivity extends Activity {
                 "SupplicantState:" + wifiInfo.getSupplicantState() + "\n" +
                 "SSID:" + wifiInfo.getSSID());
         //Linux
-        String cmd = do_exec("ip addr");
+       /* String cmd = do_exec("ip addr");
         String ipInfo = cmd.substring(cmd.indexOf("BROADCAST"));
 
         String ips = ipInfo.substring(ipInfo.indexOf("192"));
@@ -117,14 +131,13 @@ public class MainActivity extends Activity {
 
         linux_info.setText("IP:" + ips.substring(0, ips.indexOf("/")) + "\n" +
                 "Mask:" + mask + "\n" +
-                "if" + do_exec("ifconfig -lo"));
-
-        do_exec2("ifconfig");
-        do_exec2("ifconfig -eth0");
-        do_exec2("ifconfig -lo");
-        do_exec("ifconfig");
-        do_exec("ifconfig -eth0");
-        do_exec("ifconfig -lo");
+                "if" + do_exec("ifconfig -lo"));*/
+        String ifconfig = do_exec("ifconfig eth0");
+        String ifconfigs = ifconfig.substring(ifconfig.indexOf("ip"));
+        String ip = ifconfigs.substring(3, ifconfigs.indexOf("mask"));
+        String mask = ifconfigs.substring(ifconfigs.indexOf("mask"), ifconfigs.indexOf("flags"));
+        linux_info.setText("IP:" + ip + "\n" +
+                "Mask:" + mask);
     }
 
 
@@ -135,8 +148,6 @@ public class MainActivity extends Activity {
             Process p = Runtime.getRuntime().exec(cmdline);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = null;
-            //PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(p.getOutputStream())), true);
-            //out.println(cmd);
             while ((line = in.readLine()) != null) {
                 s += line + "\n";
             }
@@ -144,13 +155,14 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.e("do_exec", s);
+        Log.e("do_exec--->" + cmd, s);
         return s;
     }
 
     private String intToIp(int i) {//Formatter.inttoip();
         return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF) + "~~~" + Formatter.formatIpAddress(i);
     }
+
 
     private void do_exec2(String cmd) {
         try {
@@ -165,10 +177,44 @@ public class MainActivity extends Activity {
             localProcess.waitFor();
 
             System.out.println(localDataOutputStream);
-            Log.e("do_exec2" + cmd, localDataOutputStream + "");
+            Log.e("do_exec2--->" + cmd, localDataOutputStream + "");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void invoked() {
+        Object mEthManager = null;
+        Object mInterfaceInfo = null;
+        try {
+            mEthManager = invokeStaticMethod("android.net.ethernet.EthernetManager", "getInstance", null);
+            Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "setEnabled", new Object[]{true});
+            mInterfaceInfo = Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "getSavedConfig", null);
+
+            Object invokeret = null;
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getIpAddress", null);
+
+            String ip = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getNetMask", null);
+            String mask = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getGateWay", null);
+            String gate = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getDnsAddr", null);
+            String dns = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getHwaddr", null);
+            String mac = " ";
+            String ret = ip + ";" + mask + ";" + gate + ";" + dns + ";" + mac;
+            Log.e("invoked", ret);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("invoked(error)", e.getMessage() + "|InvocationTargetException");
+        }
+
     }
 }
 
