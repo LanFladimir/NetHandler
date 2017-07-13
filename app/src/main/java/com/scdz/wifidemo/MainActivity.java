@@ -6,12 +6,14 @@ import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -54,6 +56,15 @@ public class MainActivity extends Activity {
                 changeIpInfo();
             }
         });
+
+        String SDCARD_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String AAA_PATH = SDCARD_ROOT + "/wifidog.conf";
+        //读取目标文件（绝对路径）指定内容“#TrustedMACList ”的那一行
+        //String cmd3 = "ifconfig" ;
+        String cmd3 = "ip addr" ;
+        String str3 = new ExeCommand().run(cmd3, 10000).getResult();
+        Log.e("auto", str3);
+        Toast.makeText(MainActivity.this, str3, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -154,7 +165,7 @@ public class MainActivity extends Activity {
             localProcess.waitFor();
 
             System.out.println(localDataOutputStream);
-            Log.e("do_exec2"+cmd,localDataOutputStream+"");
+            Log.e("do_exec2" + cmd, localDataOutputStream + "");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
