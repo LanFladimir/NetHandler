@@ -2,6 +2,7 @@ package com.scdz.wifidemo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -44,12 +45,13 @@ public class MainActivity extends Activity {
         wifi_info = (TextView) findViewById(R.id.wifi_info);
         linux_info = (TextView) findViewById(R.id.linux_info);
 
-        getInfo();
+        //getInfo();
 
         wifi_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getInfo();
+//                getInfo();
+                invoked();
             }
         });
         change.setOnClickListener(new View.OnClickListener() {
@@ -183,6 +185,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void GoML(View view){
+        startActivity(new Intent(mContext,LingActivity.class));
+    }
 
     private void invoked() {
         Object mEthManager = null;

@@ -65,7 +65,6 @@ public class ExeCommand {
         Lock readLock = lock.readLock();
         readLock.lock();
         try {
-            Log.d("auto", "getResult");
             return new String(result);
         } finally {
             readLock.unlock();
@@ -87,7 +86,7 @@ public class ExeCommand {
             return this;
         }
 
-        try {
+        try {//sh
             process = getRuntime().exec("sh");//看情况可能是su
         } catch (Exception e) {
             return this;
