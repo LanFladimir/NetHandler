@@ -45,13 +45,21 @@ public class MainActivity extends Activity {
         wifi_info = (TextView) findViewById(R.id.wifi_info);
         linux_info = (TextView) findViewById(R.id.linux_info);
 
+<<<<<<< HEAD
         //getInfo();
+=======
+        getInfo();
+>>>>>>> ec3dcff571d1887abad189557e6c3915ce883861
 
         wifi_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+<<<<<<< HEAD
 //                getInfo();
                 invoked();
+=======
+                getInfo();
+>>>>>>> ec3dcff571d1887abad189557e6c3915ce883861
             }
         });
         change.setOnClickListener(new View.OnClickListener() {
@@ -185,9 +193,12 @@ public class MainActivity extends Activity {
         }
     }
 
+<<<<<<< HEAD
     public void GoML(View view){
         startActivity(new Intent(mContext,LingActivity.class));
     }
+=======
+>>>>>>> ec3dcff571d1887abad189557e6c3915ce883861
 
     private void invoked() {
         Object mEthManager = null;
