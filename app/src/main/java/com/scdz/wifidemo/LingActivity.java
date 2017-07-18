@@ -21,6 +21,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.scdz.wifidemo.Invokeutil.invokeStaticMethod;
+
 public class LingActivity extends ActionBarActivity {
     EditText ling_ming;
     TextView ling_res;
@@ -35,6 +37,7 @@ public class LingActivity extends ActionBarActivity {
         ling_ming = (EditText) findViewById(R.id.ling_ming);
         ling_res = (TextView) findViewById(R.id.ling_res);
         initDialog();
+        invoked();//测试 反射
     }
 
     public void run(View view) {
@@ -178,6 +181,39 @@ public class LingActivity extends ActionBarActivity {
             spitem_tx.setText(cmdS.get(position));
             return view;
         }
+    }
+
+    private void invoked() {
+        Object mEthManager = null;
+        Object mInterfaceInfo = null;
+        try {
+            mEthManager = invokeStaticMethod("android.net.ethernet.EthernetManager", "getInstance", null);
+            Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "setEnabled", new Object[]{true});
+            mInterfaceInfo = Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "getSavedConfig", null);
+
+            Object invokeret = null;
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getIpAddress", null);
+
+            String ip = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getNetMask", null);
+            String mask = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getGateWay", null);
+            String gate = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getDnsAddr", null);
+            String dns = invokeret.toString();
+
+            invokeret = Invokeutil.invokeMethod("android.net.ethernet.EthernetDevInfo", mInterfaceInfo, "getHwaddr", null);
+            String mac = " ";
+            String ret = ip + ";" + mask + ";" + gate + ";" + dns + ";" + mac;
+            Log.e("invoked", ret);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("invoked(error)", e.getMessage() + "|InvocationTargetException");
+        }
+
     }
 }
 

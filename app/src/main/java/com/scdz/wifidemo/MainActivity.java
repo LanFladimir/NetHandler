@@ -149,7 +149,7 @@ public class MainActivity extends Activity {
             String[] cmdline = {"sh", "-c", cmd};
             Process p = Runtime.getRuntime().exec(cmdline);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = null;
+            String line;
             while ((line = in.readLine()) != null) {
                 s += line + "\n";
             }
@@ -161,7 +161,8 @@ public class MainActivity extends Activity {
         return s;
     }
 
-    private String intToIp(int i) {//Formatter.inttoip();
+    private String intToIp(int i) {
+        //Formatter.inttoip();
         return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF) + "~~~" + Formatter.formatIpAddress(i);
     }
 
@@ -185,8 +186,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void GoML(View view){
-        startActivity(new Intent(mContext,LingActivity.class));
+    public void GoML(View view) {
+        startActivity(new Intent(mContext, LingActivity.class));
     }
 
     private void invoked() {
