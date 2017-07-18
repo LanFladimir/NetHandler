@@ -1,8 +1,9 @@
 package com.scdz.wifidemo;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,29 +16,31 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.scdz.wifidemo.Invokeutil.invokeStaticMethod;
 
-public class LingActivity extends ActionBarActivity {
+public class LingActivity extends Activity {
     EditText ling_ming;
     TextView ling_res;
 
-    List<String> cmdS = new ArrayList<>();
+    Context mContext;
+    List<String> cmdS = new ArrayList<String>();
     AlertDialog dialog;
+//    EthernetManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ling);
+        mContext = LingActivity.this;
         ling_ming = (EditText) findViewById(R.id.ling_ming);
         ling_res = (TextView) findViewById(R.id.ling_res);
         initDialog();
-        invoked();//测试 反射
+
+//        manager = EthernetManager.getInstance();
     }
 
     public void run(View view) {
@@ -45,8 +48,14 @@ public class LingActivity extends ActionBarActivity {
         do_exec(cmd);
         Log.e("LingActivity", cmd + "\n" + new ExeCommand().run(cmd, 10000).getResult());
         ling_res.setText(new ExeCommand().run(cmd, 10000).getResult());
+        //invoked();
     }
 
+    /**
+     * Su
+     *
+     * @param cmd
+     */
     private void do_exec(String cmd) {
         String line;
         StringBuffer result = new StringBuffer();
@@ -67,12 +76,28 @@ public class LingActivity extends ActionBarActivity {
                 result.append(line);
             }
             Log.e("do_exec", new String(result));
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * init
+     */
     private void initDialog() {
+        cmdS.add("netcfg eth0 up dhcp");//通过dhcp 自动获取   ANR
+        cmdS.add("# ./dhcpcd -U eth1");//自动获取IP
+        cmdS.add("# ./dhcpcd -h eth1 -d");//自动获取IP的详细调用过程
+        cmdS.add("");
+        cmdS.add("--------------");
+        cmdS.add("getprop net.eth0.dns1");//get DNS
+        cmdS.add("getprop net.eth0.dns2");
+        cmdS.add("route add default gw 192.168.0.1 dev eth0");//设置网关
+        cmdS.add("setprop net.eth0.dns1 8.8.8.8");//设置 DNS
+        cmdS.add("echo nameserver 128.224.160.11 > resolv.conf");//设置 DNS
+        cmdS.add("getprop | grep eth0");//查看eth配置信息
+        cmdS.add("--------------");
+        cmdS.add("netcfg");
         cmdS.add("ip addr");
         cmdS.add("cat /proc/cpuinfo");//设备信息
         cmdS.add("cat /etc/resolv.conf");//DNS
@@ -116,11 +141,19 @@ public class LingActivity extends ActionBarActivity {
         });
     }
 
+    /**
+     * Shell List
+     *
+     * @param view
+     */
     public void showCmdList(View view) {
         dialog.show();
     }
 
-    class CmdAdapter extends BaseAdapter {
+    /**
+     * Shell Adapter
+     */
+    private class CmdAdapter extends BaseAdapter {
 
         /**
          * 返回当前有多少个条目
@@ -183,11 +216,22 @@ public class LingActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * 反射
+     */
     private void invoked() {
         Object mEthManager = null;
         Object mInterfaceInfo = null;
         try {
-            mEthManager = invokeStaticMethod("android.net.ethernet.EthernetManager", "getInstance", null);
+           /* manager.setEnabled(true);
+            EthernetDevInfo devInfo = manager.getSavedConfig();
+            devInfo.getIpAddress();
+            devInfo.getNetMask();
+            devInfo.getGateWay();
+            devInfo.getDnsAddr();
+            devInfo.getHwaddr();*/
+
+            mEthManager = Invokeutil.invokeStaticMethod("android.net.ethernet.EthernetManager", "getInstance", null);
             Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "setEnabled", new Object[]{true});
             mInterfaceInfo = Invokeutil.invokeMethod("android.net.ethernet.EthernetManager", mEthManager, "getSavedConfig", null);
 
@@ -213,7 +257,6 @@ public class LingActivity extends ActionBarActivity {
             e.printStackTrace();
             Log.e("invoked(error)", e.getMessage() + "|InvocationTargetException");
         }
-
     }
 }
 

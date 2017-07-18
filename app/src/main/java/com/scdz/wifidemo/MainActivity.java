@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
 
 
         //Test For Cmd
-        List<String> cmdList = new ArrayList<>();
+        List<String> cmdList = new ArrayList<String>();
         cmdList.add("ip addr");
         cmdList.add("ifconfig");
         cmdList.add("ifconfig eth0");
@@ -138,8 +138,10 @@ public class MainActivity extends Activity {
         String ifconfigs = ifconfig.substring(ifconfig.indexOf("ip"));
         String ip = ifconfigs.substring(3, ifconfigs.indexOf("mask"));
         String mask = ifconfigs.substring(ifconfigs.indexOf("mask"), ifconfigs.indexOf("flags"));
+        String dns = do_exec("getprop net.eth0.dns1");
         linux_info.setText("IP:" + ip + "\n" +
-                "Mask:" + mask);
+                "Mask:" + mask + "\n" +
+                "Dns:" + dns);
     }
 
 
@@ -181,7 +183,7 @@ public class MainActivity extends Activity {
 
             System.out.println(localDataOutputStream);
             Log.e("do_exec2--->" + cmd, localDataOutputStream + "");
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

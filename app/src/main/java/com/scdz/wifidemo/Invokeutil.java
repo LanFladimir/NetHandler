@@ -33,8 +33,8 @@ public class Invokeutil {
     public static Object invokeStaticMethod(String className, String methodName,
                                             Object[] args) throws Exception {
 
-        Class<?> ownerClass = Class.forName(className);
-
+        Class<?> ownerClass = null;
+        ownerClass = Class.forName(className);
         Method[] methods = ownerClass.getMethods();
         Object ret = null;
         for (Method method : methods) {

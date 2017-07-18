@@ -2,7 +2,6 @@ package com.scdz.wifidemo;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 /**
  * Created by ScDz on 2017/7/14.
@@ -11,7 +10,7 @@ import android.support.annotation.Nullable;
 
 public class ShutDownActivity extends Activity {
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fun1();
         fun2();
